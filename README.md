@@ -1,6 +1,6 @@
-# react-native-vlc-media-player
+# react-native-vlc-media-player-tvOS
 
-A `<VLCPlayer>` component for react-native
+A `<VLCPlayer>` component for react-native tvOS 
 project was initially cloned from `react-native-yz-vlcplayer` And been actively maintaining it as original repo is not been maintained by the owner.
 
 ## Supported RN Versions
@@ -34,7 +34,7 @@ Should work without any specific settings
 
 1. cd to ios
 2. run `pod init` (if only Podfile has not been generated in ios folder)
-3. (No need if you are running RN 0.61 and up) add `pod 'MobileVLCKit', '3.3.10'` to pod file
+3. (No need if you are running RN 0.61 and up) add `pod 'TVVLCKit', '3.3.10'` to pod file
 4. run `pod install` (you have to delete the app on the simulator/device and run `react-native run-ios` again)
 
 ## Optional(only for ios)

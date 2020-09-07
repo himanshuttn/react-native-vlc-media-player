@@ -3,7 +3,7 @@
 #import "React/RCTBridgeModule.h"
 #import "React/RCTEventDispatcher.h"
 #import "React/UIView+React.h"
-#import <MobileVLCKit/MobileVLCKit.h>
+#import <TVVLCKit/TVVLCKit.h>
 #import <AVFoundation/AVFoundation.h>
 static NSString *const statusKeyPath = @"status";
 static NSString *const playbackLikelyToKeepUpKeyPath = @"playbackLikelyToKeepUp";
@@ -96,7 +96,7 @@ static NSString *const playbackRate = @"rate";
     
     // _player = [[VLCMediaPlayer alloc] initWithOptions:options];
     _player = [[VLCMediaPlayer alloc] init];
-	// [bavv edit end]
+    // [bavv edit end]
 
     [_player setDrawable:self];
     _player.delegate = self;
