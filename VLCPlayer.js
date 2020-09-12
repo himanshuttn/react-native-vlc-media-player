@@ -208,6 +208,10 @@ VLCPlayer.propTypes = {
   onPlaying: PropTypes.func,
   onPaused: PropTypes.func,
 
+  /* Property used for Sub-title and audio track selection */
+  selectVideoSubtitleIndex: PropTypes.number,
+  selectAudioTrackIndex: PropTypes.number,
+
   /* Required by react-native */
   scaleX: PropTypes.number,
   scaleY: PropTypes.number,

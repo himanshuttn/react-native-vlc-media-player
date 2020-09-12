@@ -22,6 +22,9 @@ static NSString *const playbackRate = @"rate";
     BOOL _paused;
     BOOL _started;
     
+      /* Property used for Sub-title and audio track selection */
+    NSInteger _selectVideoSubtitleIndex;
+    NSInteger _selectAudioTrackIndex;
 }
 
 - (instancetype)initWithEventDispatcher:(RCTEventDispatcher *)eventDispatcher
@@ -237,15 +240,78 @@ static NSString *const playbackRate = @"rate";
         int remainingTime = [[_player remainingTime] intValue];
         int duration      = [_player.media.length intValue];
         
+        NSObject *width = [NSNumber numberWithFloat:_player.videoSize.width];
+        NSObject *height = [NSNumber numberWithFloat:_player.videoSize.height];
+                
         if( currentTime >= 0 && currentTime < duration) {
             self.onVideoProgress(@{
                                    @"target": self.reactTag,
                                    @"currentTime": [NSNumber numberWithInt:currentTime],
                                    @"remainingTime": [NSNumber numberWithInt:remainingTime],
                                    @"duration":[NSNumber numberWithInt:duration],
-                                   @"position":[NSNumber numberWithFloat:_player.position]
+                                   @"position":[NSNumber numberWithFloat:_player.position],
+                                   @"textTracks": [self getTextTrackInfo],
+                                   @"audioTracks": [self getAudioTrackInfo],
+                                   @"naturalSize": @{
+                                           @"width": width,
+                                           @"height": height,
+                                   }
                                    });
         }
+    }
+}
+
+//Method to get sub-titles
+- (NSArray *)getTextTrackInfo
+{
+    // if streaming video, we extract the text tracks
+    NSMutableArray *textTracks = [[NSMutableArray alloc] init];
+    
+    for (int i = 0; i < _player.videoSubTitlesNames.count; ++i) {
+        
+        NSString *language = [_player.videoSubTitlesNames objectAtIndex:i];
+        NSDictionary *textTrack = @{
+            @"index": [NSNumber numberWithInt:i],
+            @"title": language,
+            @"language": language
+        };
+        [textTracks addObject:textTrack];
+    }
+    return textTracks;
+}
+
+//Method to get audio tracks
+- (NSArray *)getAudioTrackInfo
+{
+    NSMutableArray *audioTracks = [[NSMutableArray alloc] init];
+    
+    for (int i = 0; i < _player.audioTrackNames.count; ++i) {
+        
+        NSString *language = [_player.audioTrackNames objectAtIndex:i];
+        NSDictionary *audioTrack = @{
+            @"index": [NSNumber numberWithInt:i],
+            @"title": language,
+            @"language": language
+        };
+        [audioTracks addObject:audioTrack];
+    }
+    return audioTracks;
+}
+
+//Method to select sub-title from list
+- (void)setSelectVideoSubtitleIndex:(NSInteger)index
+{
+    if (index >= 0 && index < _player.videoSubTitlesIndexes.count) {
+        _player.currentVideoSubTitleIndex = [_player.videoSubTitlesIndexes[index] intValue];
+    }
+}
+
+//Method to select audio from list
+- (void)setSelectAudioTrackIndex:(NSInteger)index
+{
+    if (index >= 0 && index < _player.audioTrackIndexes.count) {
+        //we can cast this cause we won't have more than 2 million audiotracks
+        _player.currentAudioTrackIndex = [_player.audioTrackIndexes[index] intValue];
     }
 }
 
