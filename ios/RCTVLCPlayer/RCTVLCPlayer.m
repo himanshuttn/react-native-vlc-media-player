@@ -242,8 +242,9 @@ static NSString *const playbackRate = @"rate";
         
         NSObject *width = [NSNumber numberWithFloat:_player.videoSize.width];
         NSObject *height = [NSNumber numberWithFloat:_player.videoSize.height];
-                
-        if( currentTime >= 0 && currentTime < duration) {
+           
+        //Fixed for live videos
+        if( currentTime >= 0 && self.onVideoProgress) {
             self.onVideoProgress(@{
                                    @"target": self.reactTag,
                                    @"currentTime": [NSNumber numberWithInt:currentTime],
