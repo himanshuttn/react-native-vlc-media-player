@@ -329,9 +329,14 @@ static NSString *const playbackRate = @"rate";
 
 -(void)setSeek:(float)pos
 {
+    pos = pos * 1000; // Converted to millisecond
+    
+    float totalDuration = [_player.media.length intValue]; //Video total duration
+    float seekPosition = pos / totalDuration; //return movie position as percentage between 0.0 and 1.0.
+    
     if([_player isSeekable]){
-        if(pos>=0 && pos <= 1){
-            [_player setPosition:pos];
+        if(seekPosition>=0 && seekPosition <= 1){
+            [_player setPosition:seekPosition];
         }
     }
 }
