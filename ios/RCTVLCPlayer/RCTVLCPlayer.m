@@ -5,6 +5,10 @@
 #import "React/UIView+React.h"
 #import <TVVLCKit/TVVLCKit.h>
 #import <AVFoundation/AVFoundation.h>
+
+//Need to set sub-title font size
+#define kVLCSettingSubtitlesFontSize @"18"
+
 static NSString *const statusKeyPath = @"status";
 static NSString *const playbackLikelyToKeepUpKeyPath = @"playbackLikelyToKeepUp";
 static NSString *const playbackBufferEmptyKeyPath = @"playbackBufferEmpty";
@@ -166,9 +170,7 @@ static NSString *const playbackRate = @"rate";
 - (void)mediaPlayerStateChanged:(NSNotification *)aNotification
 {
    
-     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-     NSLog(@"userInfo %@",[aNotification userInfo]);
-     NSLog(@"standardUserDefaults %@",defaults);
+    NSLog(@"userInfo %@",[aNotification userInfo]);
     if(_player){
         VLCMediaPlayerState state = _player.state;
         switch (state) {
@@ -196,6 +198,11 @@ static NSString *const playbackRate = @"rate";
                 self.onVideoBuffering(@{
                                         @"target": self.reactTag
                                         });
+
+		#pragma clang diagnostic push
+		#pragma clang diagnostic ignored "-Wundeclared-selector"
+                	[_player performSelector:@selector(setTextRendererFontSize:) withObject:kVLCSettingSubtitlesFontSize]; //Set sub-title font size
+		#pragma clang diagnostic pop
                 break;
             case VLCMediaPlayerStatePlaying:
                 _paused = NO;
