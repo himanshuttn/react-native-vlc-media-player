@@ -278,12 +278,15 @@ static NSString *const playbackRate = @"rate";
     for (int i = 0; i < _player.videoSubTitlesNames.count; ++i) {
         
         NSString *language = [_player.videoSubTitlesNames objectAtIndex:i];
-        NSDictionary *textTrack = @{
-            @"index": [NSNumber numberWithInt:i],
-            @"title": language,
-            @"language": language
-        };
-        [textTracks addObject:textTrack];
+        if (![[language lowercaseString] isEqualToString:@"disable"]) {
+          // Do nothing. We want to ensure option is nil
+            NSDictionary *textTrack = @{
+                @"index": [NSNumber numberWithInt:i],
+                @"title": language,
+                @"language": language
+            };
+            [textTracks addObject:textTrack];
+        }
     }
     return textTracks;
 }
@@ -296,12 +299,15 @@ static NSString *const playbackRate = @"rate";
     for (int i = 0; i < _player.audioTrackNames.count; ++i) {
         
         NSString *language = [_player.audioTrackNames objectAtIndex:i];
-        NSDictionary *audioTrack = @{
-            @"index": [NSNumber numberWithInt:i],
-            @"title": language,
-            @"language": language
-        };
-        [audioTracks addObject:audioTrack];
+        if (![[language lowercaseString] isEqualToString:@"disable"]) {
+          // Do nothing. We want to ensure option is nil
+            NSDictionary *audioTrack = @{
+                @"index": [NSNumber numberWithInt:i],
+                @"title": language,
+                @"language": language
+            };
+            [audioTracks addObject:audioTrack];
+        }
     }
     return audioTracks;
 }
@@ -309,6 +315,7 @@ static NSString *const playbackRate = @"rate";
 //Method to select sub-title from list
 - (void)setSelectVideoSubtitleIndex:(NSInteger)index
 {
+    index += 1;
     if (index >= 0 && index < _player.videoSubTitlesIndexes.count) {
         _player.currentVideoSubTitleIndex = [_player.videoSubTitlesIndexes[index] intValue];
     }
@@ -317,6 +324,7 @@ static NSString *const playbackRate = @"rate";
 //Method to select audio from list
 - (void)setSelectAudioTrackIndex:(NSInteger)index
 {
+    index += 1;
     if (index >= 0 && index < _player.audioTrackIndexes.count) {
         //we can cast this cause we won't have more than 2 million audiotracks
         _player.currentAudioTrackIndex = [_player.audioTrackIndexes[index] intValue];
