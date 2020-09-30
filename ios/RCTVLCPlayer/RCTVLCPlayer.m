@@ -5,6 +5,7 @@
 #import "React/UIView+React.h"
 #import <TVVLCKit/TVVLCKit.h>
 #import <AVFoundation/AVFoundation.h>
+#import <XCDYouTubeKit/XCDYouTubeKit.h>
 
 //Need to set sub-title font size
 #define kVLCSettingSubtitlesFontSize @"18"
@@ -99,7 +100,34 @@ static NSString *const playbackRate = @"rate";
     // [bavv edit start]
     // NSArray *options = [NSArray arrayWithObject:@"--rtsp-tcp"];
     NSString* uri    = [_source objectForKey:@"uri"];
-    NSURL* _uri    = [NSURL URLWithString:uri];
+    NSString* youTubeURL = @"https://www.youtube.com/watch?v=";
+    if([uri containsString:youTubeURL]){
+        NSString* videoId = [uri stringByReplacingOccurrencesOfString:youTubeURL withString:@""];
+        NSLog(@"videoId %@", videoId);
+        [[XCDYouTubeClient defaultClient] getVideoWithIdentifier:videoId completionHandler:^(XCDYouTubeVideo * _Nullable video, NSError * _Nullable error) {
+            if (video)
+            {
+                NSDictionary *streamURLs = video.streamURLs;
+                NSURL *streamURL = streamURLs[XCDYouTubeVideoQualityHTTPLiveStreaming] ?: streamURLs[@(XCDYouTubeVideoQualityHD720)] ?: streamURLs[@(XCDYouTubeVideoQualityMedium360)] ?: streamURLs[@(XCDYouTubeVideoQualitySmall240)];
+                [self setResumeUrl:streamURL autoplay:autoplay];
+            }
+            else
+            {
+                self.onVideoError(@{
+                                    @"target": self.reactTag
+                                    });
+                [self _release];
+            }
+        }];
+    }
+    else {
+        NSURL* _uri    = [NSURL URLWithString:uri];
+        [self setResumeUrl:_uri autoplay:autoplay];
+    }
+    
+}
+
+-(void) setResumeUrl:(NSURL *)_uri autoplay:(BOOL)autoplay{
     
     // _player = [[VLCMediaPlayer alloc] initWithOptions:options];
     _player = [[VLCMediaPlayer alloc] init];
@@ -133,33 +161,59 @@ static NSString *const playbackRate = @"rate";
     // [bavv edit start]
     // NSArray *options = [NSArray arrayWithObject:@"--rtsp-tcp"];
     NSString* uri    = [source objectForKey:@"uri"];
-    BOOL    autoplay = [RCTConvert BOOL:[source objectForKey:@"autoplay"]];
-    NSURL* _uri    = [NSURL URLWithString:uri];
-    
-    //init player && play
-    // _player = [[VLCMediaPlayer alloc] initWithOptions:options];
-    _player = [[VLCMediaPlayer alloc] init];
-    // [bavv edit end]
+    NSString* youTubeURL = @"https://www.youtube.com/watch?v=";
+    if([uri containsString:youTubeURL]){
+        NSString* videoId = [uri stringByReplacingOccurrencesOfString:youTubeURL withString:@""];
+        NSLog(@"videoId %@", videoId);
+        [[XCDYouTubeClient defaultClient] getVideoWithIdentifier:videoId completionHandler:^(XCDYouTubeVideo * _Nullable video, NSError * _Nullable error) {
+            if (video)
+            {
+                NSDictionary *streamURLs = video.streamURLs;
+                NSURL *streamURL = streamURLs[XCDYouTubeVideoQualityHTTPLiveStreaming] ?: streamURLs[@(XCDYouTubeVideoQualityHD720)] ?: streamURLs[@(XCDYouTubeVideoQualityMedium360)] ?: streamURLs[@(XCDYouTubeVideoQualitySmall240)];
+                [self setSourceURL:streamURL source:source];
+            }
+            else
+            {
+                self.onVideoError(@{
+                                    @"target": self.reactTag
+                                    });
+                [self _release];
+            }
+        }];
+    }
+    else {
+        NSURL* _uri    = [NSURL URLWithString:uri];
+        [self setSourceURL:_uri source:source];
+    }
+}
 
-    [_player setDrawable:self];
-    _player.delegate = self;
-    _player.scaleFactor = 0;
-    //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mediaPlayerStateChanged:) name:VLCMediaPlayerStateChanged object:nil];
-    //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mediaPlayerTimeChanged:) name:VLCMediaPlayerTimeChanged object:nil];
-    NSMutableDictionary *mediaDictonary = [NSMutableDictionary new];
-    //设置缓存多少毫秒
-    // [mediaDictonary setObject:@"0" forKey:@"network-caching"];
-    [mediaDictonary setObject:@"1" forKey:@"rtsp-tcp"];
-    VLCMedia *media = [VLCMedia mediaWithURL:_uri];
-    [media addOptions:mediaDictonary];
-    _player.media = media;
-    [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
-    NSLog(@"autoplay: %i",autoplay);
-    self.onVideoLoadStart(@{
-                           @"target": self.reactTag
-                           });
-//    if(autoplay)
-        [self play];
+- (void) setSourceURL:(NSURL*) _uri source:(NSDictionary *)source{
+     BOOL    autoplay = [RCTConvert BOOL:[source objectForKey:@"autoplay"]];
+        
+        //init player && play
+        // _player = [[VLCMediaPlayer alloc] initWithOptions:options];
+        _player = [[VLCMediaPlayer alloc] init];
+        // [bavv edit end]
+
+        [_player setDrawable:self];
+        _player.delegate = self;
+        _player.scaleFactor = 0;
+        //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mediaPlayerStateChanged:) name:VLCMediaPlayerStateChanged object:nil];
+        //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(mediaPlayerTimeChanged:) name:VLCMediaPlayerTimeChanged object:nil];
+        NSMutableDictionary *mediaDictonary = [NSMutableDictionary new];
+        //设置缓存多少毫秒
+        // [mediaDictonary setObject:@"0" forKey:@"network-caching"];
+        [mediaDictonary setObject:@"1" forKey:@"rtsp-tcp"];
+        VLCMedia *media = [VLCMedia mediaWithURL:_uri];
+        [media addOptions:mediaDictonary];
+        _player.media = media;
+        [[AVAudioSession sharedInstance] setActive:NO withOptions:AVAudioSessionSetActiveOptionNotifyOthersOnDeactivation error:nil];
+        NSLog(@"autoplay: %i",autoplay);
+        self.onVideoLoadStart(@{
+                               @"target": self.reactTag
+                               });
+    //    if(autoplay)
+            [self play];
 }
 
 - (void)mediaPlayerTimeChanged:(NSNotification *)aNotification

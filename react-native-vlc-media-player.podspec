@@ -12,5 +12,5 @@ Pod::Spec.new do |s|
   s.static_framework = true  
   s.dependency 'React'
   s.dependency 'TVVLCKit', '3.3.10'
-  s.dependency 'XCDYouTubeKit', '2.8'
+  s.dependency 'XCDYouTubeKit', '2.14'
 end
