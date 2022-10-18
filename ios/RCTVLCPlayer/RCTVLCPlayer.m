@@ -5,7 +5,6 @@
 #import "React/UIView+React.h"
 #import <TVVLCKit/TVVLCKit.h>
 #import <AVFoundation/AVFoundation.h>
-#import <XCDYouTubeKit/XCDYouTubeKit.h>
 
 //Need to set sub-title font size
 #define kVLCSettingSubtitlesFontSize @"18"
@@ -100,31 +99,8 @@ static NSString *const playbackRate = @"rate";
     // [bavv edit start]
     // NSArray *options = [NSArray arrayWithObject:@"--rtsp-tcp"];
     NSString* uri    = [_source objectForKey:@"uri"];
-    NSString* youTubeURL = @"https://www.youtube.com/watch?v=";
-    if([uri containsString:youTubeURL]){
-        NSString* videoId = [uri stringByReplacingOccurrencesOfString:youTubeURL withString:@""];
-        NSLog(@"videoId %@", videoId);
-        [[XCDYouTubeClient defaultClient] getVideoWithIdentifier:videoId completionHandler:^(XCDYouTubeVideo * _Nullable video, NSError * _Nullable error) {
-            if (video)
-            {
-                NSDictionary *streamURLs = video.streamURLs;
-                NSURL *streamURL = streamURLs[XCDYouTubeVideoQualityHTTPLiveStreaming] ?: streamURLs[@(XCDYouTubeVideoQualityHD720)] ?: streamURLs[@(XCDYouTubeVideoQualityMedium360)] ?: streamURLs[@(XCDYouTubeVideoQualitySmall240)];
-                [self setResumeUrl:streamURL autoplay:autoplay];
-            }
-            else
-            {
-                self.onVideoError(@{
-                                    @"target": self.reactTag
-                                    });
-                [self _release];
-            }
-        }];
-    }
-    else {
-        NSURL* _uri    = [NSURL URLWithString:uri];
-        [self setResumeUrl:_uri autoplay:autoplay];
-    }
-    
+    NSURL* _uri    = [NSURL URLWithString:uri];
+    [self setResumeUrl:_uri autoplay:autoplay];
 }
 
 -(void) setResumeUrl:(NSURL *)_uri autoplay:(BOOL)autoplay{
@@ -161,30 +137,8 @@ static NSString *const playbackRate = @"rate";
     // [bavv edit start]
     // NSArray *options = [NSArray arrayWithObject:@"--rtsp-tcp"];
     NSString* uri    = [source objectForKey:@"uri"];
-    NSString* youTubeURL = @"https://www.youtube.com/watch?v=";
-    if([uri containsString:youTubeURL]){
-        NSString* videoId = [uri stringByReplacingOccurrencesOfString:youTubeURL withString:@""];
-        NSLog(@"videoId %@", videoId);
-        [[XCDYouTubeClient defaultClient] getVideoWithIdentifier:videoId completionHandler:^(XCDYouTubeVideo * _Nullable video, NSError * _Nullable error) {
-            if (video)
-            {
-                NSDictionary *streamURLs = video.streamURLs;
-                NSURL *streamURL = streamURLs[XCDYouTubeVideoQualityHTTPLiveStreaming] ?: streamURLs[@(XCDYouTubeVideoQualityHD720)] ?: streamURLs[@(XCDYouTubeVideoQualityMedium360)] ?: streamURLs[@(XCDYouTubeVideoQualitySmall240)];
-                [self setSourceURL:streamURL source:source];
-            }
-            else
-            {
-                self.onVideoError(@{
-                                    @"target": self.reactTag
-                                    });
-                [self _release];
-            }
-        }];
-    }
-    else {
-        NSURL* _uri    = [NSURL URLWithString:uri];
-        [self setSourceURL:_uri source:source];
-    }
+    NSURL* _uri    = [NSURL URLWithString:uri];
+    [self setSourceURL:_uri source:source];
 }
 
 - (void) setSourceURL:(NSURL*) _uri source:(NSDictionary *)source{
